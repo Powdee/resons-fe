@@ -1,6 +1,6 @@
-# resons-fe
+# vibepot-fe
 
-resons frontend repository written in NextJS
+vibepot frontend repository written in NextJS
 
 ## Getting Started
 

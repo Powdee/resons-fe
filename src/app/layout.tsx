@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { server } from "@vibepot/mocks/node";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  weight: ["300", "400", "600"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark bg-primary">
       <body className={inter.className}>{children}</body>
     </html>
   );
