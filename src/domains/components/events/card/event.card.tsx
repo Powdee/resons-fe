@@ -33,7 +33,7 @@ const EventCard = ({ attendees, url, date, name, bgUrl }: EventCardProps) => {
       />
 
       <div className="absolute top-0 left-0 z-0 w-full h-full">
-        <div className="p-12 flex justify-between h-full flex-col z-50">
+        <div className="p-12 flex justify-between h-full flex-col">
           <div className="w-[50px] h-[50px] rounded-s flex flex-col items-center relative justify-center">
             <div className="absolute bg-white/20 left-0 top-0 blur-[0.1px] w-[50px] h-[50px] rounded-s" />
             <Text variant="large" className="text-white uppercase font-bold leading-[1.3]">

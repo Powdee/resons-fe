@@ -113,7 +113,7 @@ const UpcomingEvents = () => {
       <Carousel>
         <CarouselContent className="flex gap-6">
           {events.map((event) => (
-            <CarouselItem key={event.id} className="basis-[230px]">
+            <CarouselItem key={event.id} className="basis-[230px] relative">
               <EventCard {...event} url={`events/${event.id}`} />
             </CarouselItem>
           ))}
