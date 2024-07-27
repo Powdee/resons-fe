@@ -1,36 +1,34 @@
 type TextProps = {
-  variant: "large" | "medium" | "small";
-  weight: "regular" | "bold";
+  variant: 'large' | 'medium' | 'small';
+  weight?: 'regular' | 'bold';
   className?: string;
   children: React.ReactNode;
-  component?: "p" | "span" | "div";
+  component?: 'p' | 'span' | 'div';
 };
 
 const Text = ({
-  component = "span",
+  component = 'span',
   variant,
-  weight,
+  weight = 'regular',
   children,
-  className = "",
+  className = '',
 }: TextProps) => {
   const tags = {
-    p: "p",
-    span: "span",
-    div: "div",
+    p: 'p',
+    span: 'span',
+    div: 'div',
   };
 
   const Tag = component as keyof typeof tags;
 
   const variantClasses = {
-    large: "text-body-lg",
-    medium: "text-body-md",
-    small: "text-body-sm",
+    large: 'text-body-lg',
+    medium: 'text-body-md',
+    small: 'text-body-sm',
   };
 
   return (
-    <Tag
-      className={`font-pangram font-${weight} ${variantClasses[variant]} ${className}`}
-    >
+    <Tag className={`font-pangram font-${weight} ${variantClasses[variant]} ${className}`}>
       {children}
     </Tag>
   );

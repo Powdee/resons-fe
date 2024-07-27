@@ -9,5 +9,9 @@
     "baseColor": "gray",
     "cssVariables": false,
     "prefix": ""
+  },
+  "aliases": {
+    "components": "src/design-system",
+    "utils": "src/domains/lib"
   }
 }

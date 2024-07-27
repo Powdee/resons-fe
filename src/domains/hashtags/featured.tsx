@@ -1,3 +1,4 @@
+import { Caption } from '@vibepot/design-system';
 import HashTagPill from '../components/hashtags/hashtag.pill';
 
 const hashtags = [
@@ -15,10 +16,10 @@ const hashtags = [
 
 const FeaturedHashTags = () => {
   return (
-    <div className="mt-8">
-      <h3 className="text-[#B4B5B7] uppercase mb-4 text-xs font-bold">Featured hashtags</h3>
+    <div className="flex flex-col gap-16">
+      <Caption className="text-grey-400 uppercase">Featured hashtags</Caption>
 
-      <div className="flex gap-2">
+      <div className="flex gap-8">
         {hashtags.map((hashtag) => (
           <HashTagPill name={hashtag.name} key={hashtag.id} />
         ))}

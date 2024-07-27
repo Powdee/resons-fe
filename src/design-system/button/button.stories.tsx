@@ -18,31 +18,10 @@ export const Default: Story = {
   },
 };
 
-export const Destructive: Story = {
-  args: {
-    children: 'Button',
-    variant: 'destructive',
-  },
-};
-
-export const Outline: Story = {
-  args: {
-    children: 'Button',
-    variant: 'outline',
-  },
-};
-
 export const Secondary: Story = {
   args: {
     children: 'Button',
     variant: 'secondary',
-  },
-};
-
-export const Ghost: Story = {
-  args: {
-    children: 'Button',
-    variant: 'ghost',
   },
 };
 

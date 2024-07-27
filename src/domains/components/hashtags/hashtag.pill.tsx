@@ -1,3 +1,5 @@
+import { Text } from '@vibepot/design-system';
+
 const hashtags = [
   {
     name: 'Eminem',
@@ -19,9 +21,11 @@ type HashTagPillProps = {
 
 const HashTagPill = ({ name }: HashTagPillProps) => {
   return (
-    <div className="p-[6px] bg-input rounded-[8px] flex gap-[6px] items-center w-fit">
-      <div className="bg-[#B4B5B7] h-[24px] w-[24px] rounded-[4px]" />
-      <span className="text-white font-bold text-xs">{name}</span>
+    <div className="p-6 bg-grey-800 rounded-s flex gap-8 items-center w-fit">
+      <div className="bg-grey-200 h-[24px] w-[24px] rounded-s" />
+      <Text variant="medium" className="text-white">
+        {name}
+      </Text>
     </div>
   );
 };
