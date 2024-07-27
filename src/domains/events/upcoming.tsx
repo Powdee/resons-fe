@@ -110,17 +110,15 @@ const UpcomingEvents = () => {
   return (
     <div className="flex flex-col gap-16">
       <Caption className="text-grey-400 uppercase">Upcoming concerts</Caption>
-      <div className="flex gap-4">
-        <Carousel>
-          <CarouselContent>
-            {events.map((event) => (
-              <CarouselItem key={event.id}>
-                <EventCard {...event} url={`events/${event.id}`} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-      </div>
+      <Carousel>
+        <CarouselContent className="flex gap-6">
+          {events.map((event) => (
+            <CarouselItem key={event.id} className="basis-[230px]">
+              <EventCard {...event} url={`events/${event.id}`} />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
     </div>
   );
 };

@@ -19,7 +19,7 @@ export const MultiplePills: Story = {
   render: () => (
     <div className="flex flex-row gap-2">
       {[{ name: 'Eminem' }, { name: 'Fred again' }].map((pill) => (
-        <HashTagPill name={pill.name} />
+        <HashTagPill key={pill.name} name={pill.name} />
       ))}
     </div>
   ),

@@ -11,7 +11,31 @@ export default meta;
 type Story = StoryObj<typeof EventCard>;
 export const Card: Story = {
   args: {
-    attendees: 1000,
+    attendees: {
+      total: 213,
+      people: [
+        {
+          url: '/person.png',
+          name: 'John Doe1',
+        },
+        {
+          url: '/person.png',
+          name: 'John Doe2',
+        },
+        {
+          url: '/person.png',
+          name: 'John Doe3',
+        },
+        {
+          url: '/person.png',
+          name: 'John Doe4',
+        },
+        {
+          url: '/person.png',
+          name: 'John Doe5',
+        },
+      ],
+    },
     bgUrl: '/fred.png',
     date: {
       day: '10',
