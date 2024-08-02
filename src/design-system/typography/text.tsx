@@ -1,5 +1,5 @@
 type TextProps = {
-  variant: 'large' | 'medium' | 'small';
+  variant: 'large' | 'medium' | 'small' | 'button';
   weight?: 'regular' | 'bold';
   className?: string;
   children: React.ReactNode;
@@ -25,6 +25,7 @@ const Text = ({
     large: 'text-body-lg',
     medium: 'text-body-md',
     small: 'text-body-sm',
+    button: 'text-button',
   };
 
   return (
