@@ -4,10 +4,11 @@ import Image from 'next/image';
 type AttendeesProps = {
   attendees: { url: string; name: string }[];
   total: number;
+  totalText?: string;
   cutAt?: number;
 };
 
-const Attendees = ({ attendees, total, cutAt = 4 }: AttendeesProps) => {
+const Attendees = ({ attendees, totalText = 'Attend', total, cutAt = 4 }: AttendeesProps) => {
   return (
     <div className="flex flex-row items-center bg-primary rounded-s w-fit">
       <div className="flex flex-row items-center gap-2">
@@ -29,7 +30,7 @@ const Attendees = ({ attendees, total, cutAt = 4 }: AttendeesProps) => {
         weight="bold"
         className="text-white px-8 h-[32px] bg-primary border-2 border-grey-900 rounded-s ml-[-16px] flex items-center"
       >
-        +{total} Attend
+        +{total} {totalText}
       </Text>
     </div>
   );

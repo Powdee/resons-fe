@@ -22,6 +22,7 @@ const config = {
       s: '8px',
       m: '12px',
       l: '16px',
+      xl: '24px',
       full: '999px',
     },
     spacing: {
@@ -57,8 +58,8 @@ const config = {
       h6: ['18px', { lineHeight: '24px', letterSpacing: '0' }],
       body: ['16px', { lineHeight: '20px', letterSpacing: '0.5px' }],
       'body-md': ['14px', { lineHeight: '18px', letterSpacing: '0.5px' }],
-      'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '-.5px' }],
-      caption: ['12px', { lineHeight: '16px', letterSpacing: '-.5px' }],
+      'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '-0.5px' }],
+      caption: ['12px', { lineHeight: '16px', letterSpacing: '0.5px' }],
       button: ['14px', { lineHeight: '16px', letterSpacing: '0.5px' }],
     },
     colors: {
@@ -91,6 +92,7 @@ const config = {
         800: '#363938',
         900: '#2F3231',
         950: '#1B1D1C',
+        1000: '#0e0f0f',
       },
       red: {
         10: '#FEEBEB',
@@ -135,6 +137,7 @@ const config = {
         800: '#363938',
         900: '#2F3231',
         950: '#1B1D1C',
+        1000: '#0e0f0f',
       },
       red: {
         10: '#FEEBEB',
