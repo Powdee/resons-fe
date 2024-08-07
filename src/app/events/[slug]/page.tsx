@@ -191,9 +191,7 @@ export default function Event({ params }: EventProps) {
             </Title>
 
             <Button variant="default" size="sm">
-              <Link href={`/events/${eventId}/videos`}>
-                <Text variant="button">All</Text>
-              </Link>
+              <Text variant="button">All</Text>
             </Button>
           </div>
 
