@@ -65,14 +65,14 @@ const LineupDrawer = ({ eventId }: { eventId: string }) => {
 
   return (
     <Drawer
-      onOpenChange={(isOpened) => {
-        if (!isOpened) {
-          router.push(`/events/${eventId}`);
-        } else {
-          router.push(`/events/${eventId}?drawer=lineups`);
-        }
-      }}
-      open={isOpen}
+    // onOpenChange={(isOpened) => {
+    //   if (!isOpened) {
+    //     router.push(`/events/${eventId}`);
+    //   } else {
+    //     router.push(`/events/${eventId}?drawer=lineups`);
+    //   }
+    // }}
+    // open={isOpen}
     >
       <Button asChild variant="default" size="sm">
         <Text variant="button">
