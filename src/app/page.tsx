@@ -6,7 +6,7 @@ import { cookiesClient } from './amplify-server.util';
 
 export default async function Home() {
   const { data: todos } = await cookiesClient.models.Todo.list();
-  console.log(todos);
+
   return (
     <main className="px-16 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto">
       <div className="flex gap-40 flex-col">

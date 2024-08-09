@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.0.4",
-    "@aws-amplify/backend-cli": "^1.2.2",
+    "@aws-amplify/backend-cli": "^0.11.1",
     "@chromatic-com/storybook": "^1.6.1",
     "@storybook/addon-backgrounds": "^8.2.6",
     "@storybook/addon-essentials": "^8.2.4",
@@ -41,7 +41,7 @@
     "@storybook/addon-links": "^8.2.4",
     "@storybook/addon-onboarding": "^8.2.4",
     "@storybook/blocks": "^8.2.4",
-    "@storybook/nextjs": "^8.2.4",
+    "@storybook/nextjs": "^7.0.14",
     "@storybook/react": "^8.2.4",
     "@storybook/test": "^8.2.4",
     "@types/node": "^20",
