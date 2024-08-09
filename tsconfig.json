@@ -18,8 +18,7 @@
       }
     ],
     "paths": {
-      "@vibepot/*": ["./src/*"],
-      "@/*": ["./amplify_outputs.json"]
+      "@vibepot/*": ["./src/*", "./amplify/*", "./amplify_outputs.json"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

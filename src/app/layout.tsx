@@ -4,11 +4,7 @@ import { Theme } from '@radix-ui/themes';
 
 import './globals.css';
 import '@radix-ui/themes/styles.css';
-
-import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify_outputs.json';
-
-Amplify.configure(outputs);
+import ConfigureAmplifyClientSide from '@vibepot/domains/auth/configure';
 
 const pangram = localFont({
   src: [
@@ -38,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark bg-primary">
       <body className={pangram.className}>
+        <ConfigureAmplifyClientSide />
         <Theme>{children}</Theme>
       </body>
     </html>
