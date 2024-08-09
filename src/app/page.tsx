@@ -5,11 +5,6 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
-import { Amplify } from 'aws-amplify';
-import outputs from '../../amplify_outputs.json';
-
-Amplify.configure(outputs);
-
 const HashtagSchema = z.object({
   hashtag: z.string(),
 });
