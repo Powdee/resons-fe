@@ -23,6 +23,6 @@ export async function AuthGetCurrentUserServer() {
     });
     return currentUser;
   } catch (error) {
-    console.error(error);
+    // no - op console.error(error);
   }
 }

@@ -1,41 +1,36 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
-import { AuthError, signIn, sendUserAttributeVerificationCode } from 'aws-amplify/auth';
+import { AuthError, signUp } from 'aws-amplify/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
 
-function SignIn() {
+function SignUp() {
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
 
   const { mutate, isLoading } = useMutation({
-    mutationKey: ['signIn'],
-    mutationFn: signIn,
+    mutationKey: ['signUp'],
+    mutationFn: signUp,
     onSuccess: (response) => {
       const nextStep = response.nextStep;
-      const isSignedIn = response.isSignedIn;
-      const isDone = nextStep.signInStep === 'DONE';
-      const confirmSignUpStep = nextStep.signInStep === 'CONFIRM_SIGN_UP';
+      const isSignUpComplete = response.isSignUpComplete;
+      const isConfirmed = nextStep.signUpStep === 'CONFIRM_SIGN_UP';
 
-      if (confirmSignUpStep) {
-        sendUserAttributeVerificationCode({ userAttributeKey: 'email' });
-        router.push(`/verify?${new URLSearchParams({ email })}`);
-      }
-
-      if (isSignedIn && isDone) {
+      if (isSignUpComplete && isConfirmed) {
         setIsRedirecting(true);
-        router.push('/');
+        router.push(`/verify?${new URLSearchParams({ email })}`);
       }
     },
     onError: (error) => {
       if (error instanceof AuthError) {
-        console.error(error.recoverySuggestion);
+        console.error(error.cause);
       }
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['signIn'] }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['signUp'] }),
   });
 
   const isPending = isLoading || isRedirecting;
@@ -50,13 +45,27 @@ function SignIn() {
           const username = form.email.value;
           const password = form.password.value;
 
+          const confirmPassword = form.confirmPassword.value;
+
+          if (password !== confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+          }
+
           setEmail(username);
-          mutate({ username, password });
+          mutate({
+            username,
+            password,
+            options: {
+              userAttributes: {
+                email: username,
+              },
+            },
+          });
         }}
         className="gap-20 w-full flex flex-col items-stretch"
       >
-        <Title variant="h2">Login</Title>
-        <Caption>Enter your email below to login to your account.</Caption>
+        <Title variant="h2">Create your account</Title>
         <div className="grid gap-4">
           <div className="grid gap-8">
             <Text variant="medium" htmlFor="email">
@@ -83,18 +92,25 @@ function SignIn() {
               required
             />
           </div>
+          <div className="grid gap-8">
+            <Text variant="medium" htmlFor="confirmPassword">
+              Confirm Password
+            </Text>
+            <Input disabled={isPending} id="confirmPassword" type="password" required />
+          </div>
         </div>
         <div>
           <Button disabled={isPending} variant="default" className="w-full" type="submit">
-            {isPending ? 'Loading...' : 'Sign in'}
+            {isPending ? 'Loading...' : 'Create an account'}
           </Button>
         </div>
         <Button className="text-body-sm" size="sm" asChild variant="link">
-          <Link href="/sign-up">Create your account</Link>
+          <Link href="/sign-in">Login</Link>
         </Button>
       </form>
+      {error && <Text variant="large">{error}</Text>}
     </main>
   );
 }
 
-export default SignIn;
+export default SignUp;

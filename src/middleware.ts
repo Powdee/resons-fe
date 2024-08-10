@@ -5,7 +5,7 @@ import { runWithAmplifyServerContext } from './app/amplify-server.util';
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
-  const authenticated = await runWithAmplifyServerContext({
+  const isAuthenticated = await runWithAmplifyServerContext({
     nextServerContext: { request, response },
     operation: async (contextSpec) => {
       try {
@@ -18,11 +18,21 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  if (authenticated) {
-    return response;
+  const { pathname } = request.nextUrl;
+
+  if (isAuthenticated) {
+    // If authenticated and trying to access the sign-in or sign-up pages, redirect to home
+    if (pathname === '/sign-in' || pathname === '/sign-up') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  } else {
+    // If not authenticated and trying to access a protected route (excluding /sign-in and /sign-up), redirect to sign-in
+    if (pathname !== '/sign-in' && pathname !== '/sign-up') {
+      return NextResponse.redirect(new URL('/sign-in', request.url));
+    }
   }
 
-  return NextResponse.redirect(new URL('/sign-in', request.url));
+  return response;
 }
 
 export const config = {
@@ -35,5 +45,9 @@ export const config = {
     //  * - favicon.ico (favicon file)
     //  */
     // '/((?!api|_next/static|_next/image|favicon.ico|sign-in).*)',
+    '/sign-in',
+    '/sign-up',
+    '/sign-out',
+    '/verify',
   ],
 };
