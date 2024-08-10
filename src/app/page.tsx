@@ -35,7 +35,7 @@ export default async function Home() {
       {user?.email ? (
         <>
           <Text variant="medium">
-            Logged in user: {user?.email} {user?.email_verified ? 'Verified' : 'Non-Verified'}
+            Logged in user: {user.email} {user?.email_verified ? 'Verified' : 'Non-Verified'}
           </Text>
           <Button variant="link" asChild size="sm">
             <Link href="/sign-out">Sign out</Link>
