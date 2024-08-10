@@ -2,7 +2,7 @@
 
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Input, Text, Title } from '@vibepot/design-system';
-import { AuthError, confirmSignUp } from 'aws-amplify/auth';
+import { AuthError, autoSignIn, confirmSignUp } from 'aws-amplify/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
@@ -13,17 +13,19 @@ function VerifyUser() {
   const router = useRouter();
   const search = useSearchParams();
 
-  const { mutate, isLoading } = useMutation({
+  const { mutateAsync, isLoading } = useMutation({
     mutationKey: ['verifyUser'],
     mutationFn: confirmSignUp,
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       const nextStep = response.nextStep;
       const isSignUpComplete = response.isSignUpComplete;
       const isDone = nextStep.signUpStep === 'DONE';
 
       if (isSignUpComplete && isDone) {
         setIsRedirecting(true);
-        router.push('/');
+        await autoSignIn();
+        router.push(`/`);
+        router.refresh();
       }
     },
     onError: (error) => {
@@ -47,7 +49,7 @@ function VerifyUser() {
           const username = search.get('email') as string;
           const confirmationCode = form.confirmationCode.value;
 
-          mutate({
+          mutateAsync({
             username,
             confirmationCode,
           });
