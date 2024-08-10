@@ -1,7 +1,7 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Input, Text, Title } from '@vibepot/design-system';
 import { AuthError, confirmSignUp } from 'aws-amplify/auth';
-import { useRouter, useSearchParams, useParams } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
 
@@ -29,7 +29,9 @@ function VerifyUser() {
         console.error(error.cause);
       }
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['verifyUser'] }),
+    onSettled: async () => {
+      return await queryClient.invalidateQueries({ queryKey: ['verifyUser'] });
+    },
   });
 
   const isPending = isLoading || isRedirecting;

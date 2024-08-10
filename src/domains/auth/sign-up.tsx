@@ -30,7 +30,9 @@ function SignUp() {
         console.error(error.cause);
       }
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['signUp'] }),
+    onSettled: async () => {
+      return await queryClient.invalidateQueries({ queryKey: ['signUp'] });
+    },
   });
 
   const isPending = isLoading || isRedirecting;

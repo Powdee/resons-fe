@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
     nextServerContext: { request, response },
     operation: async (contextSpec) => {
       try {
-        const session = await fetchAuthSession(contextSpec);
+        const session = await fetchAuthSession(contextSpec, { forceRefresh: true });
         return session.tokens?.accessToken !== undefined && session.tokens?.idToken !== undefined;
       } catch (error) {
         console.log(error);
@@ -19,7 +19,6 @@ export async function middleware(request: NextRequest) {
   });
 
   const { pathname } = request.nextUrl;
-
   if (isAuthenticated) {
     // If authenticated and trying to access the sign-in or sign-up pages, redirect to home
     if (pathname === '/sign-in' || pathname === '/sign-up') {
@@ -36,18 +35,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    // /*
-    //  * Match all request paths except for the ones starting with:
-    //  * - api (API routes)
-    //  * - _next/static (static files)
-    //  * - _next/image (image optimization files)
-    //  * - favicon.ico (favicon file)
-    //  */
-    // '/((?!api|_next/static|_next/image|favicon.ico|sign-in).*)',
-    '/sign-in',
-    '/sign-up',
-    '/sign-out',
-    '/verify',
-  ],
+  matcher: ['/[^api|^_next|^favicon.ico|^app]/(.*)', '/sign-in', '/sign-up'],
 };

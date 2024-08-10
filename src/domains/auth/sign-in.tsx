@@ -1,6 +1,7 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
 import { AuthError, signIn, sendUserAttributeVerificationCode } from 'aws-amplify/auth';
+import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -35,7 +36,9 @@ function SignIn() {
         console.error(error.recoverySuggestion);
       }
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['signIn'] }),
+    onSettled: async () => {
+      return await queryClient.invalidateQueries({ queryKey: ['signIn'] });
+    },
   });
 
   const isPending = isLoading || isRedirecting;
