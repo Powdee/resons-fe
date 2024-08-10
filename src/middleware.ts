@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
     nextServerContext: { request, response },
     operation: async (contextSpec) => {
       try {
-        const session = await fetchAuthSession(contextSpec, { forceRefresh: true });
+        const session = await fetchAuthSession(contextSpec);
         return session.tokens?.accessToken !== undefined && session.tokens?.idToken !== undefined;
       } catch (error) {
         console.log(error);

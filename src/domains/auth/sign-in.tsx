@@ -1,14 +1,16 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
-import { AuthError, signIn, sendUserAttributeVerificationCode } from 'aws-amplify/auth';
-import { revalidatePath } from 'next/cache';
+import { AuthError, signIn, resendSignUpCode } from 'aws-amplify/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 function SignIn() {
+  const user = useAuthenticator();
   const router = useRouter();
+
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [email, setEmail] = useState('');
 
@@ -22,13 +24,14 @@ function SignIn() {
       const confirmSignUpStep = nextStep.signInStep === 'CONFIRM_SIGN_UP';
 
       if (confirmSignUpStep) {
-        sendUserAttributeVerificationCode({ userAttributeKey: 'email' });
+        resendSignUpCode({ username: email });
         router.push(`/verify?${new URLSearchParams({ email })}`);
       }
 
-      if (isSignedIn && isDone) {
+      if (isDone) {
         setIsRedirecting(true);
         router.push('/');
+        router.refresh();
       }
     },
     onError: (error) => {

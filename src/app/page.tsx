@@ -15,7 +15,7 @@ export default async function Home() {
 
     const session = await runWithAmplifyServerContext({
       nextServerContext: { cookies },
-      operation: (contextSpec) => fetchAuthSession(contextSpec, { forceRefresh: true }),
+      operation: (contextSpec) => fetchAuthSession(contextSpec),
     });
 
     if (!session.tokens?.accessToken) return null;

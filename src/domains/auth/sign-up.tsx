@@ -1,6 +1,6 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Input, Text, Title } from '@vibepot/design-system';
-import { AuthError, signUp } from 'aws-amplify/auth';
+import { AuthError, autoSignIn, signUp } from 'aws-amplify/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -12,10 +12,10 @@ function SignUp() {
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
 
-  const { mutate, isLoading } = useMutation({
+  const { mutateAsync, isLoading } = useMutation({
     mutationKey: ['signUp'],
     mutationFn: signUp,
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       const nextStep = response.nextStep;
       const isSignUpComplete = response.isSignUpComplete;
       const isConfirmed = nextStep.signUpStep === 'CONFIRM_SIGN_UP';
@@ -27,7 +27,9 @@ function SignUp() {
       }
 
       if (isSignUpComplete) {
+        await autoSignIn();
         router.push(`/`);
+        router.refresh();
         return;
       }
     },
@@ -61,7 +63,7 @@ function SignUp() {
           }
 
           setEmail(username);
-          mutate({
+          await mutateAsync({
             username,
             password,
             options: {
