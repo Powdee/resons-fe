@@ -34,8 +34,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark bg-primary">
       <body className={pangram.className}>
-        <ConfigureAmplifyClientSide />
-        <Theme>{children}</Theme>
+        <Theme>
+          <ConfigureAmplifyClientSide />
+          {children}
+        </Theme>
       </body>
     </html>
   );

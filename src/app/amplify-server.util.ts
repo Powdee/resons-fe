@@ -9,6 +9,7 @@ export const { runWithAmplifyServerContext } = createServerRunner({
   config: outputs,
 });
 
+// example: const { data: todos } = await cookiesClient.models.Todo.list();
 export const cookiesClient = generateServerClientUsingCookies<Schema>({
   config: outputs,
   cookies,

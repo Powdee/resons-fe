@@ -2,14 +2,15 @@ import { Button, Input } from '@vibepot/design-system';
 import UpcomingEvents from '@vibepot/domains/events/upcoming';
 import FeaturedHashTags from '@vibepot/domains/hashtags/featured';
 import Image from 'next/image';
-import { cookiesClient } from './amplify-server.util';
+import { AuthGetCurrentUserServer } from './amplify-server.util';
 
 export default async function Home() {
-  const { data: todos } = await cookiesClient.models.Todo.list();
+  const user = await AuthGetCurrentUserServer();
 
   return (
     <main className="px-16 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto">
       <div className="flex gap-40 flex-col">
+        {user?.username}
         <header className="flex items-center justify-center">
           <Image src="/vibepot_logo.svg" alt="logo" width={150} height={100} />
         </header>
@@ -25,7 +26,6 @@ export default async function Home() {
           <FeaturedHashTags />
           <UpcomingEvents />
         </div>
-        {todos && todos.map((todo) => <div key={todo.id}>{todo.content}</div>)}
       </div>
     </main>
   );
