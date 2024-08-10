@@ -1,5 +1,5 @@
 import queryClient from '@vibepot/app/query-client.util';
-import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
+import { Button, Input, Text, Title } from '@vibepot/design-system';
 import { AuthError, signUp } from 'aws-amplify/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

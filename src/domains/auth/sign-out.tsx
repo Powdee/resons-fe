@@ -1,6 +1,5 @@
 'use client';
 
-import { Flex } from '@radix-ui/themes';
 import { Button, Text } from '@vibepot/design-system';
 import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
