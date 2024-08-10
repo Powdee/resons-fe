@@ -20,9 +20,15 @@ function SignUp() {
       const isSignUpComplete = response.isSignUpComplete;
       const isConfirmed = nextStep.signUpStep === 'CONFIRM_SIGN_UP';
 
-      if (isSignUpComplete && isConfirmed) {
+      if (isConfirmed) {
         setIsRedirecting(true);
         router.push(`/verify?${new URLSearchParams({ email })}`);
+        return;
+      }
+
+      if (isSignUpComplete) {
+        router.push(`/`);
+        return;
       }
     },
     onError: (error) => {
