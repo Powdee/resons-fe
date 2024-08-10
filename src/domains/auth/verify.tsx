@@ -1,7 +1,9 @@
+'use client';
+
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Input, Text, Title } from '@vibepot/design-system';
 import { AuthError, confirmSignUp } from 'aws-amplify/auth';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
 
@@ -9,7 +11,7 @@ function VerifyUser() {
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   const router = useRouter();
-  const params = useParams();
+  const search = useSearchParams();
 
   const { mutate, isLoading } = useMutation({
     mutationKey: ['verifyUser'],
@@ -42,7 +44,7 @@ function VerifyUser() {
         onSubmit={async (event) => {
           event.preventDefault();
           const form = event.target as HTMLFormElement;
-          const username = params.email as string;
+          const username = search.get('email') as string;
           const confirmationCode = form.confirmationCode.value;
 
           mutate({
