@@ -1,17 +1,25 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
-import { AuthError, signIn, resendSignUpCode, signInWithRedirect } from 'aws-amplify/auth';
+import {
+  AuthError,
+  signIn,
+  resendSignUpCode,
+  signInWithRedirect,
+  confirmSignIn,
+} from 'aws-amplify/auth';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 
 function SignIn() {
   const router = useRouter();
+  const params = useSearchParams();
 
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const code = params.get('code');
 
   const { mutate, isLoading } = useMutation({
     mutationKey: ['signIn', email],
@@ -46,6 +54,14 @@ function SignIn() {
       return await queryClient.invalidateQueries({ queryKey: ['signIn', email] });
     },
   });
+
+  const data = useQuery({
+    queryKey: ['confirmSignIn', code],
+    queryFn: () => confirmSignIn({ challengeResponse: code as string }),
+    enabled: !!code,
+  });
+
+  console.log(data);
 
   const { mutate: googleSignIn } = useMutation({
     mutationKey: ['googleSignIn', email],
@@ -117,10 +133,6 @@ function SignIn() {
         <Button disabled={isPending} variant="default" className="w-full" type="submit">
           {isPending ? 'Loading...' : 'Sign in'}
         </Button>
-        <Button className="text-body-sm" size="sm" asChild variant="link">
-          <Link href="/sign-up">Create your account</Link>
-        </Button>
-        {error && <Text variant="large">{error}</Text>}
       </form>
       <Button
         onClick={() => {
@@ -130,8 +142,12 @@ function SignIn() {
         className="w-full"
         type="submit"
       >
-        Sign In with Google
+        Sign in with Google
       </Button>
+      <Button className="text-body-sm" size="sm" asChild variant="link">
+        <Link href="/sign-up">Create your account</Link>
+      </Button>
+      {error && <Text variant="large">{error}</Text>}
     </main>
   );
 }
