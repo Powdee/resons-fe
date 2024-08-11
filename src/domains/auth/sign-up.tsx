@@ -15,18 +15,10 @@ function SignUp() {
     mutationKey: ['signUp'],
     mutationFn: signUp,
     onSuccess: async (response) => {
-      const nextStep = response.nextStep;
       const isSignUpComplete = response.isSignUpComplete;
-      const isConfirmed = nextStep.signUpStep === 'CONFIRM_SIGN_UP';
-      const isDone = nextStep.signUpStep === 'DONE';
-
-      if (isConfirmed) {
-        setIsRedirecting(true);
-
-        return;
-      }
 
       if (isSignUpComplete) {
+        setIsRedirecting(true);
         router.push(`/`);
         router.refresh();
       }

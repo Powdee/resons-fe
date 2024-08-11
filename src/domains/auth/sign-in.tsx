@@ -1,16 +1,10 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
-import {
-  AuthError,
-  signIn,
-  resendSignUpCode,
-  signInWithRedirect,
-  confirmSignIn,
-} from 'aws-amplify/auth';
+import { AuthError, signIn, resendSignUpCode, signInWithRedirect } from 'aws-amplify/auth';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation } from 'react-query';
 
 function SignIn() {
   const router = useRouter();
@@ -19,7 +13,6 @@ function SignIn() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const code = params.get('code');
 
   const { mutate, isLoading } = useMutation({
     mutationKey: ['signIn', email],
@@ -54,14 +47,6 @@ function SignIn() {
       return await queryClient.invalidateQueries({ queryKey: ['signIn', email] });
     },
   });
-
-  const data = useQuery({
-    queryKey: ['confirmSignIn', code],
-    queryFn: () => confirmSignIn({ challengeResponse: code as string }),
-    enabled: !!code,
-  });
-
-  console.log(data);
 
   const { mutate: googleSignIn } = useMutation({
     mutationKey: ['googleSignIn', email],

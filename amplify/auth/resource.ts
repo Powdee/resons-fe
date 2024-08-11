@@ -11,11 +11,11 @@ export const auth = defineAuth({
         clientId: secret('GOOGLE_CLIENT_ID'),
         clientSecret: secret('GOOGLE_CLIENT_SECRET'),
         scopes: ['email'],
-        attributeMapping: {
-          email: 'email',
-        },
+        // attributeMapping: {
+        //   email: 'email',
+        // },
       },
-      callbackUrls: ['http://localhost:3000/sign-in'],
+      callbackUrls: ['http://localhost:3000'],
       logoutUrls: ['http://localhost:3000/sign-out'],
     },
     email: true,
