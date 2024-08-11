@@ -1,6 +1,6 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
-import { AuthError, signIn, resendSignUpCode } from 'aws-amplify/auth';
+import { AuthError, signIn, resendSignUpCode, signInWithRedirect } from 'aws-amplify/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -44,6 +44,23 @@ function SignIn() {
     },
     onSettled: async () => {
       return await queryClient.invalidateQueries({ queryKey: ['signIn', email] });
+    },
+  });
+
+  const { mutate: googleSignIn } = useMutation({
+    mutationKey: ['googleSignIn', email],
+    mutationFn: signInWithRedirect,
+    onError: (error) => {
+      if (error instanceof AuthError) {
+        if (error.name === 'NotAuthorizedException') {
+          setError(error.message);
+          return;
+        }
+      }
+      console.error(error);
+    },
+    onSettled: async () => {
+      return await queryClient.invalidateQueries({ queryKey: ['googleSignIn', email] });
     },
   });
 
@@ -96,16 +113,25 @@ function SignIn() {
             />
           </div>
         </div>
-        <div>
-          <Button disabled={isPending} variant="default" className="w-full" type="submit">
-            {isPending ? 'Loading...' : 'Sign in'}
-          </Button>
-        </div>
+
+        <Button disabled={isPending} variant="default" className="w-full" type="submit">
+          {isPending ? 'Loading...' : 'Sign in'}
+        </Button>
         <Button className="text-body-sm" size="sm" asChild variant="link">
           <Link href="/sign-up">Create your account</Link>
         </Button>
         {error && <Text variant="large">{error}</Text>}
       </form>
+      <Button
+        onClick={() => {
+          googleSignIn({ provider: 'Google' });
+        }}
+        variant="default"
+        className="w-full"
+        type="submit"
+      >
+        Sign In with Google
+      </Button>
     </main>
   );
 }

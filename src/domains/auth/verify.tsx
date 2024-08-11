@@ -21,7 +21,7 @@ function VerifyUser() {
     onSuccess: async (response) => {
       const nextStep = response.nextStep;
       const isAutoSignIn = nextStep.signUpStep === 'COMPLETE_AUTO_SIGN_IN';
-
+      setIsRedirecting(true);
       if (isAutoSignIn) {
         // does not work as expected - bug on amplify side
         await handleAutoSignIn();
