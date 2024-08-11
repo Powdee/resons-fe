@@ -1,5 +1,6 @@
 'use client';
 
+import queryClient from '@vibepot/app/query-client.util';
 import { Button, Text } from '@vibepot/design-system';
 import { signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
@@ -14,6 +15,7 @@ export default function SignOut() {
         onClick={async () => {
           await signOut();
           router.push('/sign-in');
+          router.refresh();
         }}
         variant="default"
         size="sm"

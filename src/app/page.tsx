@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { runWithAmplifyServerContext } from './amplify-server.util';
 import { cookies } from 'next/headers';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth/server';
+import { AuthError, signOut } from 'aws-amplify/auth';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,12 +22,21 @@ export default async function Home() {
 
     if (!session.tokens?.accessToken) return null;
 
-    const currentUser = await runWithAmplifyServerContext({
-      nextServerContext: { cookies },
-      operation: (contextSpec) => fetchUserAttributes(contextSpec),
-    });
+    try {
+      const currentUser = await runWithAmplifyServerContext({
+        nextServerContext: { cookies },
+        operation: (contextSpec) => fetchUserAttributes(contextSpec),
+      });
 
-    return currentUser;
+      return currentUser;
+    } catch (error) {
+      if (error instanceof AuthError) {
+        if (error.name === 'UserNotFoundException') {
+          redirect('/sign-out');
+        }
+      }
+      return null;
+    }
   };
 
   const user = await getUser();

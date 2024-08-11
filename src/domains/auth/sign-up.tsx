@@ -2,7 +2,7 @@ import queryClient from '@vibepot/app/query-client.util';
 import { Button, Input, Text, Title } from '@vibepot/design-system';
 import { AuthError, autoSignIn, signUp } from 'aws-amplify/auth';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
 
@@ -10,7 +10,6 @@ function SignUp() {
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
 
   const { mutateAsync, isLoading } = useMutation({
     mutationKey: ['signUp'],
@@ -19,22 +18,25 @@ function SignUp() {
       const nextStep = response.nextStep;
       const isSignUpComplete = response.isSignUpComplete;
       const isConfirmed = nextStep.signUpStep === 'CONFIRM_SIGN_UP';
+      const isDone = nextStep.signUpStep === 'DONE';
 
       if (isConfirmed) {
         setIsRedirecting(true);
-        router.push(`/verify?${new URLSearchParams({ email })}`);
+
         return;
       }
 
       if (isSignUpComplete) {
-        await autoSignIn();
         router.push(`/`);
         router.refresh();
-        return;
       }
     },
     onError: (error) => {
       if (error instanceof AuthError) {
+        // if (error.name === 'UsernameExistsException') {
+        //   return;
+        // }
+        setError(error.message);
         console.error(error.cause);
       }
     },
@@ -62,7 +64,7 @@ function SignUp() {
             return;
           }
 
-          setEmail(username);
+          router.push(`/verify?${new URLSearchParams({ email: username })}`);
           await mutateAsync({
             username,
             password,
@@ -117,8 +119,8 @@ function SignUp() {
         <Button className="text-body-sm" size="sm" asChild variant="link">
           <Link href="/sign-in">Login</Link>
         </Button>
+        {error && <Text variant="large">{error}</Text>}
       </form>
-      {error && <Text variant="large">{error}</Text>}
     </main>
   );
 }

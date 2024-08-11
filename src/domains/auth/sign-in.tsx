@@ -4,18 +4,17 @@ import { AuthError, signIn, resendSignUpCode } from 'aws-amplify/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
-import { useAuthenticator } from '@aws-amplify/ui-react';
+import { useMutation } from 'react-query';
 
 function SignIn() {
-  const user = useAuthenticator();
   const router = useRouter();
 
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [email, setEmail] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const { mutate, isLoading } = useMutation({
-    mutationKey: ['signIn'],
+    mutationKey: ['signIn', email],
     mutationFn: signIn,
     onSuccess: (response) => {
       const nextStep = response.nextStep;
@@ -28,7 +27,7 @@ function SignIn() {
         router.push(`/verify?${new URLSearchParams({ email })}`);
       }
 
-      if (isDone) {
+      if (isDone && isSignedIn) {
         setIsRedirecting(true);
         router.push('/');
         router.refresh();
@@ -36,11 +35,15 @@ function SignIn() {
     },
     onError: (error) => {
       if (error instanceof AuthError) {
-        console.error(error.recoverySuggestion);
+        if (error.name === 'NotAuthorizedException') {
+          setError(error.message);
+          return;
+        }
       }
+      console.error(error);
     },
     onSettled: async () => {
-      return await queryClient.invalidateQueries({ queryKey: ['signIn'] });
+      return await queryClient.invalidateQueries({ queryKey: ['signIn', email] });
     },
   });
 
@@ -49,6 +52,9 @@ function SignIn() {
   return (
     <main className="px-16 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto flex gap-10 flex-col items-center">
       <form
+        onChange={() => {
+          setError(null);
+        }}
         onSubmit={async (event) => {
           event.preventDefault();
           const form = event.target as HTMLFormElement;
@@ -98,6 +104,7 @@ function SignIn() {
         <Button className="text-body-sm" size="sm" asChild variant="link">
           <Link href="/sign-up">Create your account</Link>
         </Button>
+        {error && <Text variant="large">{error}</Text>}
       </form>
     </main>
   );
