@@ -15,7 +15,7 @@ export const auth = defineAuth({
         //   email: 'email',
         // },
       },
-      callbackUrls: ['http://localhost:3000'],
+      callbackUrls: ['http://localhost:3000/sign-in'],
       logoutUrls: ['http://localhost:3000/sign-out'],
     },
     email: true,

@@ -1,10 +1,36 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
-import { AuthError, signIn, resendSignUpCode, signInWithRedirect } from 'aws-amplify/auth';
+import {
+  AuthError,
+  signIn,
+  resendSignUpCode,
+  signInWithRedirect,
+  getCurrentUser,
+  fetchUserAttributes,
+} from 'aws-amplify/auth';
+import 'aws-amplify/auth/enable-oauth-listener';
+import { Hub } from 'aws-amplify/utils';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
+
+Hub.listen('auth', async ({ payload }) => {
+  switch (payload.event) {
+    case 'signInWithRedirect':
+      const user = await getCurrentUser();
+      const userAttributes = await fetchUserAttributes();
+      console.log({ user, userAttributes });
+      break;
+    case 'signInWithRedirect_failure':
+      // handle sign in failure
+      break;
+    case 'customOAuthState':
+      const state = payload.data; // this will be customState provided on signInWithRedirect function
+      console.log(state);
+      break;
+  }
+});
 
 function SignIn() {
   const router = useRouter();
