@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { runWithAmplifyServerContext } from './amplify-server.util';
 import { cookies } from 'next/headers';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth/server';
-import { AuthError, signOut } from 'aws-amplify/auth';
+import { AuthError, confirmSignIn, signOut } from 'aws-amplify/auth';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
@@ -46,7 +46,8 @@ export default async function Home() {
       {user?.email ? (
         <>
           <Text variant="medium">
-            Logged in user: {user.email} {user?.email_verified ? 'Verified' : 'Non-Verified'}
+            Logged in user: {user.email}{' '}
+            {user?.email_verified === 'true' ? 'Verified' : 'Non-Verified'}
           </Text>
           <Button variant="link" asChild size="sm">
             <Link href="/sign-out">Sign out</Link>

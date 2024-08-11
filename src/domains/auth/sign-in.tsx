@@ -1,3 +1,4 @@
+import { useAuthenticator } from '@aws-amplify/ui-react';
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
 import {
@@ -7,42 +8,53 @@ import {
   signInWithRedirect,
   getCurrentUser,
   fetchUserAttributes,
+  SignInInput,
+  confirmSignIn,
 } from 'aws-amplify/auth';
 import 'aws-amplify/auth/enable-oauth-listener';
 import { Hub } from 'aws-amplify/utils';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-import { useMutation } from 'react-query';
-
-Hub.listen('auth', async ({ payload }) => {
-  switch (payload.event) {
-    case 'signInWithRedirect':
-      const user = await getCurrentUser();
-      const userAttributes = await fetchUserAttributes();
-      console.log({ user, userAttributes });
-      break;
-    case 'signInWithRedirect_failure':
-      // handle sign in failure
-      break;
-    case 'customOAuthState':
-      const state = payload.data; // this will be customState provided on signInWithRedirect function
-      console.log(state);
-      break;
-  }
-});
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
 
 function SignIn() {
   const router = useRouter();
-  const params = useSearchParams();
-
+  const user = useAuthenticator();
+  console.log('user', user);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const listener = Hub.listen('auth', async ({ payload }) => {
+      switch (payload.event) {
+        case 'signedIn':
+          console.log('user signed in');
+          break;
+        case 'signInWithRedirect':
+          router.refresh();
+          router.push('/');
+          break;
+        case 'signInWithRedirect_failure':
+          setIsRedirecting(false);
+          break;
+        default:
+          break;
+      }
+    });
+
+    return () => listener();
+  }, [router]);
+
   const { mutate, isLoading } = useMutation({
-    mutationKey: ['signIn', email],
-    mutationFn: signIn,
+    mutationKey: ['signIn'],
+    mutationFn: async (input: SignInInput) => {
+      const output = await signIn(input);
+      return {
+        ...output,
+        ...input,
+      };
+    },
     onSuccess: (response) => {
       const nextStep = response.nextStep;
       const isSignedIn = response.isSignedIn;
@@ -50,8 +62,8 @@ function SignIn() {
       const confirmSignUpStep = nextStep.signInStep === 'CONFIRM_SIGN_UP';
 
       if (confirmSignUpStep) {
-        resendSignUpCode({ username: email });
-        router.push(`/verify?${new URLSearchParams({ email })}`);
+        router.push(`/verify?${new URLSearchParams({ email: response?.username })}`);
+        resendSignUpCode({ username: response?.username });
       }
 
       if (isDone && isSignedIn) {
@@ -70,25 +82,13 @@ function SignIn() {
       console.error(error);
     },
     onSettled: async () => {
-      return await queryClient.invalidateQueries({ queryKey: ['signIn', email] });
+      return await queryClient.invalidateQueries({ queryKey: ['signIn'] });
     },
   });
 
   const { mutate: googleSignIn } = useMutation({
-    mutationKey: ['googleSignIn', email],
+    mutationKey: ['googleSignIn'],
     mutationFn: signInWithRedirect,
-    onError: (error) => {
-      if (error instanceof AuthError) {
-        if (error.name === 'NotAuthorizedException') {
-          setError(error.message);
-          return;
-        }
-      }
-      console.error(error);
-    },
-    onSettled: async () => {
-      return await queryClient.invalidateQueries({ queryKey: ['googleSignIn', email] });
-    },
   });
 
   const isPending = isLoading || isRedirecting;
@@ -106,7 +106,6 @@ function SignIn() {
           const username = form.email.value;
           const password = form.password.value;
 
-          setEmail(username);
           mutate({ username, password });
         }}
         className="gap-20 w-full flex flex-col items-stretch"
@@ -146,14 +145,16 @@ function SignIn() {
         </Button>
       </form>
       <Button
+        disabled={isRedirecting}
         onClick={() => {
+          setIsRedirecting(true);
           googleSignIn({ provider: 'Google' });
         }}
         variant="default"
         className="w-full"
         type="submit"
       >
-        Sign in with Google
+        {isRedirecting ? 'Loading...' : 'Sign in with Google'}
       </Button>
       <Button className="text-body-sm" size="sm" asChild variant="link">
         <Link href="/sign-up">Create your account</Link>
