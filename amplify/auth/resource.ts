@@ -15,7 +15,10 @@ export const auth = defineAuth({
           email: 'email',
         },
       },
-      callbackUrls: ['http://localhost:3000/auth/callback'],
+      callbackUrls: [
+        'http://localhost:3000/auth/google/callback',
+        'https://main.d1jxap0816cgco.amplifyapp.com/auth/google/callback',
+      ],
       logoutUrls: ['http://localhost:3000/sign-out'],
     },
     email: true,
