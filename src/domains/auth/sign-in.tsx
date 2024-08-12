@@ -1,4 +1,3 @@
-import { useAuthenticator } from '@aws-amplify/ui-react';
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
 import {
@@ -6,45 +5,19 @@ import {
   signIn,
   resendSignUpCode,
   signInWithRedirect,
-  getCurrentUser,
-  fetchUserAttributes,
   SignInInput,
-  confirmSignIn,
 } from 'aws-amplify/auth';
 import 'aws-amplify/auth/enable-oauth-listener';
-import { Hub } from 'aws-amplify/utils';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useMutation } from 'react-query';
 
 function SignIn() {
   const router = useRouter();
-  const user = useAuthenticator();
-  console.log('user', user);
+
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const listener = Hub.listen('auth', async ({ payload }) => {
-      switch (payload.event) {
-        case 'signedIn':
-          console.log('user signed in');
-          break;
-        case 'signInWithRedirect':
-          router.refresh();
-          router.push('/');
-          break;
-        case 'signInWithRedirect_failure':
-          setIsRedirecting(false);
-          break;
-        default:
-          break;
-      }
-    });
-
-    return () => listener();
-  }, [router]);
 
   const { mutate, isLoading } = useMutation({
     mutationKey: ['signIn'],

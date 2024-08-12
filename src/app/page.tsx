@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { runWithAmplifyServerContext } from './amplify-server.util';
 import { cookies } from 'next/headers';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth/server';
-import { AuthError, confirmSignIn, signOut } from 'aws-amplify/auth';
+import { AuthError } from 'aws-amplify/auth';
 import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
