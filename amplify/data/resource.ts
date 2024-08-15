@@ -16,44 +16,7 @@ and "delete" any "Todo" records.
 //     .authorization((allow) => [allow.owner()]),
 // });
 
-// create schema from this sql
-// -- name: CreateEvent :one
-// INSERT INTO events (title, description, created_by, start_date, end_date, hashtag_id, location)
-// VALUES ($1, $2, $3, $4, $5, $6, $7)
-// RETURNING *;
-
-// -- name: GetEventByID :one
-// SELECT * FROM events
-// WHERE event_id = $1;
-
-// -- name: UpdateEvent :exec
-// UPDATE events
-// SET title = $2, description = $3, start_date = $4, end_date = $5, hashtag_id = $6, location = $7
-// WHERE event_id = $1;
-
-// -- name: DeleteEvent :exec
-// DELETE FROM events
-// WHERE event_id = $1;
-
-// -- name: ListEvents :many
-// SELECT * FROM events
-// ORDER BY created_at DESC;
-
-// -- name: GetEventByHashtag :one
-// SELECT e.*
-// FROM events e
-// JOIN hashtags h ON e.hashtag_id = h.hashtag_id
-// WHERE h.tag = $1;
-
 const schema = a.schema({
-  User: a
-    .model({
-      username: a.string(),
-      email: a.string(),
-      created_at: a.string(),
-      role: a.enum(['admin', 'user']),
-    })
-    .authorization((allow) => [allow.owner()]),
   Event: a
     .model({
       title: a.string(),
