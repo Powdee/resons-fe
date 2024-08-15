@@ -48,22 +48,18 @@ and "delete" any "Todo" records.
 const schema = a.schema({
   User: a
     .model({
-      userId: a.id().required(),
       username: a.string(),
       email: a.string(),
       created_at: a.string(),
       role: a.enum(['admin', 'user']),
     })
-    .authorization((allow) => [allow.owner()])
-    .identifier(['userId']),
+    .authorization((allow) => [allow.owner()]),
   Event: a
     .model({
-      eventId: a.id().required(),
       title: a.string(),
       description: a.string(),
-      createdBy: a.string(),
-      startDate: a.string(),
-      endDate: a.string(),
+      startDate: a.date(),
+      endDate: a.date(),
       hashtagId: a.id(),
       hashtag: a.belongsTo('Hashtag', 'hashtagId'),
       location: a.string(),
@@ -71,19 +67,16 @@ const schema = a.schema({
     .authorization((allow) => [
       allow.guest().to(['read']),
       allow.groups(['ADMIN']).to(['read', 'update', 'delete']),
-    ])
-    .identifier(['eventId']),
+    ]),
   Hashtag: a
     .model({
       events: a.hasOne('Event', 'hashtagId'),
-      hashtagId: a.id().required(),
       tag: a.string(),
     })
     .authorization((allow) => [
       allow.guest().to(['read']),
       allow.groups(['ADMIN']).to(['read', 'update', 'delete']),
-    ])
-    .identifier(['hashtagId']),
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
