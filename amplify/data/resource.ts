@@ -6,14 +6,84 @@ adding a new "isDone" field as a boolean. The authorization rule below
 specifies that any unauthenticated user can "create", "read", "update", 
 and "delete" any "Todo" records.
 =========================================================================*/
+// const schema = a.schema({
+//   Event: a
+//     .model({
+//       content: a.string(),
+//       isDone: a.boolean(),
+//       priority: a.enum(['low', 'medium', 'high']),
+//     })
+//     .authorization((allow) => [allow.owner()]),
+// });
+
+// create schema from this sql
+// -- name: CreateEvent :one
+// INSERT INTO events (title, description, created_by, start_date, end_date, hashtag_id, location)
+// VALUES ($1, $2, $3, $4, $5, $6, $7)
+// RETURNING *;
+
+// -- name: GetEventByID :one
+// SELECT * FROM events
+// WHERE event_id = $1;
+
+// -- name: UpdateEvent :exec
+// UPDATE events
+// SET title = $2, description = $3, start_date = $4, end_date = $5, hashtag_id = $6, location = $7
+// WHERE event_id = $1;
+
+// -- name: DeleteEvent :exec
+// DELETE FROM events
+// WHERE event_id = $1;
+
+// -- name: ListEvents :many
+// SELECT * FROM events
+// ORDER BY created_at DESC;
+
+// -- name: GetEventByHashtag :one
+// SELECT e.*
+// FROM events e
+// JOIN hashtags h ON e.hashtag_id = h.hashtag_id
+// WHERE h.tag = $1;
+
 const schema = a.schema({
-  Todo: a
+  User: a
     .model({
-      content: a.string(),
-      isDone: a.boolean(),
-      priority: a.enum(['low', 'medium', 'high']),
+      userId: a.id().required(),
+      username: a.string(),
+      email: a.string(),
+      created_at: a.string(),
+      role: a.enum(['admin', 'user']),
     })
-    .authorization((allow) => [allow.owner()]),
+    .authorization((allow) => [allow.owner()])
+    .identifier(['userId']),
+  Event: a
+    .model({
+      eventId: a.id().required(),
+      title: a.string(),
+      description: a.string(),
+      createdBy: a.string(),
+      startDate: a.string(),
+      endDate: a.string(),
+      hashtagId: a.id(),
+      hashtag: a.belongsTo('Hashtag', 'hashtagId'),
+      location: a.string(),
+    })
+    .authorization((allow) => [
+      allow.guest().to(['read']),
+      allow.groups(['ADMIN']).to(['read', 'update', 'delete']),
+    ])
+    .identifier(['eventId']),
+  Hashtag: a
+    .model({
+      events: a.hasOne('Event', 'hashtagId'),
+      hashtagId: a.id().required(),
+      tag: a.string(),
+    })
+    .authorization((allow) => [
+      allow.guest().to(['read']),
+      allow.groups(['ADMIN']).to(['read', 'update', 'delete']),
+    ])
+    .identifier(['hashtagId']),
 });
 
 export type Schema = ClientSchema<typeof schema>;

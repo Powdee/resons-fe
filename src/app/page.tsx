@@ -41,6 +41,7 @@ export default async function Home() {
 
   const user = await getUser();
 
+  console.log(events);
   return (
     <main className="px-16 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto">
       {user?.email ? (
