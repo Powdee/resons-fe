@@ -3,7 +3,7 @@ import UpcomingEvents from '@vibepot/domains/events/upcoming';
 import FeaturedHashTags from '@vibepot/domains/hashtags/featured';
 import Image from 'next/image';
 import Link from 'next/link';
-import { runWithAmplifyServerContext } from './amplify-server.util';
+import { cookiesClient, runWithAmplifyServerContext } from './amplify-server.util';
 import { cookies } from 'next/headers';
 import { fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth/server';
 import { AuthError } from 'aws-amplify/auth';
@@ -40,6 +40,8 @@ export default async function Home() {
   };
 
   const user = await getUser();
+  const { data: events } = await cookiesClient.models.Event.list();
+  const { data: hashtags } = await cookiesClient.models.Event.list();
 
   return (
     <main className="px-16 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto">

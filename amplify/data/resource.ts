@@ -6,17 +6,19 @@ adding a new "isDone" field as a boolean. The authorization rule below
 specifies that any unauthenticated user can "create", "read", "update", 
 and "delete" any "Todo" records.
 =========================================================================*/
-// const schema = a.schema({
-//   Event: a
-//     .model({
-//       content: a.string(),
-//       isDone: a.boolean(),
-//       priority: a.enum(['low', 'medium', 'high']),
-//     })
-//     .authorization((allow) => [allow.owner()]),
-// });
 
 const schema = a.schema({
+  User: a
+    .model({
+      id: a.id(),
+      email: a.string(),
+      lastKnownLocation: a.ref('Location'),
+    })
+    .authorization((allow) => [allow.owner()]),
+  Location: a.customType({
+    lat: a.float(),
+    long: a.float(),
+  }),
   Event: a
     .model({
       title: a.string(),
@@ -25,11 +27,11 @@ const schema = a.schema({
       endDate: a.date(),
       hashtagId: a.id(),
       hashtag: a.belongsTo('Hashtag', 'hashtagId'),
-      location: a.string(),
+      location: a.ref('Location'),
     })
     .authorization((allow) => [
       allow.guest().to(['read']),
-      allow.groups(['ADMIN']).to(['read', 'update', 'delete']),
+      allow.groups(['ADMIN']).to(['update', 'create', 'delete']),
     ]),
   Hashtag: a
     .model({
@@ -38,7 +40,7 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.guest().to(['read']),
-      allow.groups(['ADMIN']).to(['read', 'update', 'delete']),
+      allow.groups(['ADMIN']).to(['update', 'create', 'delete']),
     ]),
 });
 
@@ -47,7 +49,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'userPool',
+    defaultAuthorizationMode: 'identityPool',
   },
 });
 
