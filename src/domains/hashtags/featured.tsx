@@ -1,5 +1,5 @@
 import { Caption } from '@vibepot/design-system';
-import HashTagPill from '../components/hashtags/hashtag.pill';
+import HashTagPill from '../common/components/hashtags/hashtag.pill';
 
 const hashtags = [
   {

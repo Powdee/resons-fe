@@ -4,12 +4,15 @@ import queryClient from '@vibepot/app/query-client.util';
 import { Button, Input, Text, Title } from '@vibepot/design-system';
 import { AuthError, autoSignIn, confirmSignUp, resendSignUpCode } from 'aws-amplify/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { ChangeEvent, ChangeEventHandler, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
+import Header from '../common/components/header/header';
+import repeat from '../common/utils/repeat';
 
 function VerifyUser() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const inputRefs = useRef<HTMLInputElement[]>([]);
 
   const router = useRouter();
   const search = useSearchParams();
@@ -71,60 +74,96 @@ function VerifyUser() {
     },
   });
 
+  const handleChange = (event: ChangeEvent<HTMLInputElement>, index: number) => {
+    const value = event.target.value.replace(/[^0-9]/g, '');
+    if (value.length === 1) {
+      if (index < 5) {
+        inputRefs.current[index + 1].focus();
+      }
+    } else if (value.length === 0 && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+
   const isPending = isLoading || isRedirecting;
 
   return (
-    <main className="px-16 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto flex gap-10 flex-col items-center">
-      <form
-        onSubmit={async (event) => {
-          event.preventDefault();
-          const form = event.target as HTMLFormElement;
-          const confirmationCode = form.confirmationCode.value;
+    <>
+      <Header pageName="Sign up" />
+      <main className="px-20 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto flex gap-10 flex-col items-center">
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const form = event.target as HTMLFormElement;
+            const confirmationCode = repeat(6, (i) => {
+              return form[`code-input-${i}`].value;
+            }).join('');
 
-          mutateAsync({
-            username,
-            confirmationCode,
-          });
-        }}
-        className="gap-20 w-full flex flex-col items-stretch"
-      >
-        <Title variant="h2">Verify your account</Title>
-        <div className="grid gap-4">
+            mutateAsync({
+              username,
+              confirmationCode,
+            });
+          }}
+          className="gap-28 w-full flex flex-col items-stretch"
+        >
           <div className="grid gap-8">
-            <Text variant="medium" htmlFor="confirmationCode">
-              Confirmation Code
+            <Title variant="h5">Verify your email address</Title>
+            <Text variant="large">
+              This help us keep your account secure. We just sent a a verification link to:
             </Text>
-            <Input
-              disabled={isPending}
-              autoComplete="mobile tel"
-              id="confirmationCode"
-              type="number"
-              required
-            />
           </div>
-        </div>
-        <div>
-          <Button disabled={isPending} variant="default" className="w-full" type="submit">
+
+          <div className="grid gap-12">
+            <div className="grid gap-6">
+              <Text variant="medium" weight="bold">
+                Confirmation Code
+              </Text>
+
+              <div className="flex flex-no-wrap flex-row gap-8 justify-between">
+                {repeat(6, (index) => (
+                  <Input
+                    key={`input-${index}`}
+                    disabled={isPending}
+                    className="max-w-[50px] h-[52px] text-center"
+                    autoComplete="mobile tel-country-code webauthn"
+                    id={`code-input-${index}`}
+                    type="number"
+                    ref={(el) => {
+                      if (!el) return;
+                      inputRefs.current[index] = el;
+                    }}
+                    maxLength={1}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(event) => handleChange(event, index)}
+                    max={9}
+                    min={0}
+                    required
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+          <Text variant="large" weight="bold">
+            Didn’t receive your code?{' '}
+            <Button
+              onClick={() =>
+                handleSend({
+                  username,
+                })
+              }
+              className="pl-0 text-secondary"
+              variant="link"
+            >
+              Resend
+            </Button>
+          </Text>
+          <Button disabled={isPending} variant="secondary" className="w-full" type="submit">
             {isPending ? 'Loading...' : 'Submit'}
           </Button>
-        </div>
-        {error && <Text variant="large">{error}</Text>}
-      </form>
-      <Text variant="medium">
-        Did not get verification code?{' '}
-        <Button
-          onClick={() =>
-            handleSend({
-              username,
-            })
-          }
-          className="pl-0"
-          variant="link"
-        >
-          Send again
-        </Button>
-      </Text>
-    </main>
+          {error && <Text variant="large">{error}</Text>}
+        </form>
+      </main>
+    </>
   );
 }
 

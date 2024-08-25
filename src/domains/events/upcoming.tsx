@@ -1,5 +1,5 @@
 import { Caption, Carousel, CarouselContent, CarouselItem } from '@vibepot/design-system';
-import EventCard from '../components/events/card/event.card';
+import EventCard from '../common/components/events/card/event.card';
 
 const events = [
   {

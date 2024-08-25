@@ -10,7 +10,7 @@ and "delete" any "Todo" records.
 const schema = a.schema({
   User: a
     .model({
-      id: a.id(),
+      sub: a.id(),
       email: a.string(),
       lastKnownLocation: a.ref('Location'),
     })
@@ -31,7 +31,7 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.guest().to(['read']),
-      allow.groups(['ADMIN']).to(['update', 'create', 'delete']),
+      allow.groups(['ADMIN']).to(['update', 'read', 'create', 'delete']),
     ]),
   Hashtag: a
     .model({
@@ -40,7 +40,7 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.guest().to(['read']),
-      allow.groups(['ADMIN']).to(['update', 'create', 'delete']),
+      allow.groups(['ADMIN']).to(['update', 'read', 'create', 'delete']),
     ]),
 });
 
@@ -49,7 +49,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'identityPool',
+    defaultAuthorizationMode: 'userPool',
   },
 });
 

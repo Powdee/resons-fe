@@ -15,7 +15,7 @@ import {
   Text,
   Title,
 } from '@vibepot/design-system';
-import Attendees from '@vibepot/domains/components/events/attendees/attendees';
+import Attendees from '@vibepot/domains/common/components/events/attendees/attendees';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';

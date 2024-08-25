@@ -23,3 +23,4 @@ export { default as CalendarIcon } from './icons/calendar';
 export { default as RightArrowIcon } from './icons/right-arrow';
 export { default as LeftArrowFilledIcon } from './icons/left-arrow-filled';
 export { default as MediaIcon } from './icons/media';
+export { default as GoogleIcon } from './icons/google';

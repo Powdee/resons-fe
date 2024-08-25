@@ -1,5 +1,5 @@
 import queryClient from '@vibepot/app/query-client.util';
-import { Button, Caption, Input, Text, Title } from '@vibepot/design-system';
+import { Button, Caption, GoogleIcon, Input, Text, Title } from '@vibepot/design-system';
 import {
   AuthError,
   signIn,
@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
+import Header from '../common/components/header/header';
 
 function SignIn() {
   const router = useRouter();
@@ -67,73 +68,85 @@ function SignIn() {
   const isPending = isLoading || isRedirecting;
 
   return (
-    <main className="px-16 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto flex gap-10 flex-col items-center">
-      <form
-        onChange={() => {
-          setError(null);
-        }}
-        onSubmit={async (event) => {
-          event.preventDefault();
-          const form = event.target as HTMLFormElement;
+    <>
+      <Header pageName="Sign in" />
+      <main className="px-20 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto flex gap-10 flex-col items-center">
+        <form
+          onChange={() => {
+            setError(null);
+          }}
+          onSubmit={async (event) => {
+            event.preventDefault();
+            const form = event.target as HTMLFormElement;
 
-          const username = form.email.value;
-          const password = form.password.value;
+            const username = form.email.value;
+            const password = form.password.value;
 
-          mutate({ username, password });
-        }}
-        className="gap-20 w-full flex flex-col items-stretch"
-      >
-        <Title variant="h2">Login</Title>
-        <Caption>Enter your email below to login to your account.</Caption>
-        <div className="grid gap-4">
-          <div className="grid gap-8">
-            <Text variant="medium" htmlFor="email">
-              Email
-            </Text>
-            <Input
-              disabled={isPending}
-              autoComplete="email"
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              required
-            />
+            mutate({ username, password });
+          }}
+          className="gap-28 w-full flex flex-col items-stretch"
+        >
+          <div className="grid gap-12">
+            <div className="grid gap-6">
+              <Text variant="medium" weight="bold" htmlFor="email">
+                Email
+              </Text>
+              <Input
+                disabled={isPending}
+                autoComplete="email"
+                id="email"
+                type="email"
+                placeholder="E-mail"
+                required
+              />
+            </div>
+            <div className="grid gap-6">
+              <Text variant="medium" weight="bold" htmlFor="email">
+                Password
+              </Text>
+              <Input
+                disabled={isPending}
+                autoComplete="current-password"
+                id="password"
+                type="password"
+                placeholder="Password"
+                required
+              />
+            </div>
           </div>
-          <div className="grid gap-8">
-            <Text variant="medium" htmlFor="password">
-              Password
-            </Text>
-            <Input
-              disabled={isPending}
-              autoComplete="current-password"
-              id="password"
-              type="password"
-              required
-            />
-          </div>
+
+          <Button disabled={isPending} variant="secondary" className="w-full" type="submit">
+            {isPending ? 'Loading...' : 'Sign in'}
+          </Button>
+          <Caption className="text-center text-grey-300">OR</Caption>
+          <Button
+            disabled={isRedirecting}
+            onClick={() => {
+              setIsRedirecting(true);
+              googleSignIn({ provider: 'Google' });
+            }}
+            variant="default"
+            className="w-full"
+            type="submit"
+          >
+            {isRedirecting ? (
+              'Loading...'
+            ) : (
+              <div className="flex items-center gap-12">
+                <GoogleIcon /> Sign in with Google
+              </div>
+            )}
+          </Button>
+          {error && <Text variant="large">{error}</Text>}
+        </form>
+        <div className="absolute bottom-32 flex flex-col gap-8 items-center justify-center">
+          <Caption className="text-grey-400">Don’t have an account?</Caption>
+          <Button asChild variant="link" className="text-secondary p-0">
+            <Link href="/sign-up">Create an account</Link>
+          </Button>
         </div>
-
-        <Button disabled={isPending} variant="default" className="w-full" type="submit">
-          {isPending ? 'Loading...' : 'Sign in'}
-        </Button>
-      </form>
-      <Button
-        disabled={isRedirecting}
-        onClick={() => {
-          setIsRedirecting(true);
-          googleSignIn({ provider: 'Google' });
-        }}
-        variant="default"
-        className="w-full"
-        type="submit"
-      >
-        {isRedirecting ? 'Loading...' : 'Sign in with Google'}
-      </Button>
-      <Button className="text-body-sm" size="sm" asChild variant="link">
-        <Link href="/sign-up">Create your account</Link>
-      </Button>
-      {error && <Text variant="large">{error}</Text>}
-    </main>
+      </main>
+    </>
   );
 }
 

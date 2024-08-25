@@ -28,6 +28,9 @@ export default async function Home() {
         operation: (contextSpec) => fetchUserAttributes(contextSpec),
       });
 
+      const events = await cookiesClient.models.Event.list({ authMode: 'userPool' });
+      const hashtags = await cookiesClient.models.Event.list({ authMode: 'userPool' });
+
       return currentUser;
     } catch (error) {
       if (error instanceof AuthError) {
@@ -40,9 +43,6 @@ export default async function Home() {
   };
 
   const user = await getUser();
-  const { data: events } = await cookiesClient.models.Event.list();
-  const { data: hashtags } = await cookiesClient.models.Event.list();
-
   return (
     <main className="px-16 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto">
       {user?.email ? (
