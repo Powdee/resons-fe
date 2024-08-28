@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
-import Header from '../common/components/header/header';
+import AuthHeader from '../common/components/auth/header';
 
 function SignIn() {
   const router = useRouter();
@@ -69,7 +69,7 @@ function SignIn() {
 
   return (
     <>
-      <Header pageName="Sign in" />
+      <AuthHeader pageName="Sign in" />
       <main className="px-20 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto flex gap-10 flex-col items-center">
         <form
           onChange={() => {

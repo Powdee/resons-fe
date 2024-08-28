@@ -22,8 +22,8 @@ type EventCardProps = {
 
 const EventCard = ({ attendees, url, date, name, bgUrl }: EventCardProps) => {
   return (
-    <div className="w-[217px] h-[210px]">
-      <Link className="relative cursor-pointer overflow-hidden" href={url}>
+    <Link className="relative cursor-pointer overflow-hidden" href={url}>
+      <div className="w-[217px] h-[210px]">
         <Image
           className="rounded-l hover:scale-150 h-full object-cover"
           width={217}
@@ -51,8 +51,8 @@ const EventCard = ({ attendees, url, date, name, bgUrl }: EventCardProps) => {
             </div>
           </div>
         </div>
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 };
 

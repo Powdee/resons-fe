@@ -8,13 +8,13 @@ and "delete" any "Todo" records.
 =========================================================================*/
 
 const schema = a.schema({
-  User: a
-    .model({
-      sub: a.id(),
-      email: a.string(),
-      lastKnownLocation: a.ref('Location'),
-    })
-    .authorization((allow) => [allow.owner()]),
+  // User: a
+  //   .model({
+  //     sub: a.id(),
+  //     email: a.string(),
+  //     lastKnownLocation: a.ref('Location'),
+  //   })
+  //   .authorization((allow) => [allow.owner()]),
   Location: a.customType({
     lat: a.float(),
     long: a.float(),
@@ -30,8 +30,8 @@ const schema = a.schema({
       location: a.ref('Location'),
     })
     .authorization((allow) => [
-      allow.guest().to(['read']),
-      allow.groups(['ADMIN']).to(['update', 'read', 'create', 'delete']),
+      allow.groups(['AuthenticatedUsers']).to(['create', 'update', 'delete']),
+      allow.guest().to(['read']), // This allows unauthenticated access
     ]),
   Hashtag: a
     .model({
@@ -39,8 +39,8 @@ const schema = a.schema({
       tag: a.string(),
     })
     .authorization((allow) => [
-      allow.guest().to(['read']),
-      allow.groups(['ADMIN']).to(['update', 'read', 'create', 'delete']),
+      allow.groups(['AuthenticatedUsers']).to(['create', 'update', 'delete']),
+      allow.guest().to(['read']), // This allows unauthenticated access
     ]),
 });
 

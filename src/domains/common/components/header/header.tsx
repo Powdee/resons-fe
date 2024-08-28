@@ -1,15 +1,26 @@
-import { Title } from '@vibepot/design-system';
+import { Button, Text } from '@vibepot/design-system';
+import Link from 'next/link';
+import { FetchUserAttributesOutput } from 'aws-amplify/auth';
 
 type HeaderProps = {
-  pageName: string;
+  user?: FetchUserAttributesOutput | null | undefined;
 };
 
-const Header = ({ pageName }: HeaderProps) => {
+const Header = async ({ user }: HeaderProps) => {
   return (
     <div className="p-20 w-full flex items-center sticky text-center">
-      <Title variant="h5" className="text-white w-full">
-        {pageName}
-      </Title>
+      {user?.email ? (
+        <>
+          <Text variant="medium">Logged in user: {user.email} </Text>
+          <Button variant="link" asChild size="sm">
+            <Link href="/sign-out">Sign out</Link>
+          </Button>
+        </>
+      ) : (
+        <Button variant="link" asChild size="sm">
+          <Link href="/sign-in">Sign in</Link>
+        </Button>
+      )}
     </div>
   );
 };

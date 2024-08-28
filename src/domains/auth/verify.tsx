@@ -4,10 +4,10 @@ import queryClient from '@vibepot/app/query-client.util';
 import { Button, Input, Text, Title } from '@vibepot/design-system';
 import { AuthError, autoSignIn, confirmSignUp, resendSignUpCode } from 'aws-amplify/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ChangeEvent, ChangeEventHandler, useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
-import Header from '../common/components/header/header';
 import repeat from '../common/utils/repeat';
+import AuthHeader from '../common/components/auth/header';
 
 function VerifyUser() {
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -74,14 +74,29 @@ function VerifyUser() {
     },
   });
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>, index: number) => {
+  console.log('inputRefs.current?.length', inputRefs.current?.length);
+
+  const handleChange = async (event: ChangeEvent<HTMLInputElement>, index: number) => {
     const value = event.target.value.replace(/[^0-9]/g, '');
     if (value.length === 1) {
+      // if (event.target.value) {
+      //   event.target.value = value;
+      // }
       if (index < 5) {
         inputRefs.current[index + 1].focus();
       }
     } else if (value.length === 0 && index > 0) {
       inputRefs.current[index - 1].focus();
+    } else if (index === 5 && value.length === 1) {
+      const form = event.target.form as HTMLFormElement;
+      const confirmationCode = repeat(6, (i) => {
+        return form[`code-input-${i}`].value;
+      }).join('');
+
+      await mutateAsync({
+        username,
+        confirmationCode,
+      });
     }
   };
 
@@ -89,7 +104,7 @@ function VerifyUser() {
 
   return (
     <>
-      <Header pageName="Sign up" />
+      <AuthHeader pageName="Sign up" />
       <main className="px-20 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto flex gap-10 flex-col items-center">
         <form
           onSubmit={async (event) => {
@@ -99,7 +114,7 @@ function VerifyUser() {
               return form[`code-input-${i}`].value;
             }).join('');
 
-            mutateAsync({
+            await mutateAsync({
               username,
               confirmationCode,
             });
@@ -134,7 +149,7 @@ function VerifyUser() {
                     }}
                     maxLength={1}
                     onFocus={(e) => e.target.select()}
-                    onChange={(event) => handleChange(event, index)}
+                    onChange={async (event) => await handleChange(event, index)}
                     max={9}
                     min={0}
                     required
@@ -143,25 +158,26 @@ function VerifyUser() {
               </div>
             </div>
           </div>
-          <Text variant="large" weight="bold">
-            Didn’t receive your code?{' '}
-            <Button
-              onClick={() =>
-                handleSend({
-                  username,
-                })
-              }
-              className="pl-0 text-secondary"
-              variant="link"
-            >
-              Resend
-            </Button>
-          </Text>
+
           <Button disabled={isPending} variant="secondary" className="w-full" type="submit">
             {isPending ? 'Loading...' : 'Submit'}
           </Button>
           {error && <Text variant="large">{error}</Text>}
         </form>
+        <Text variant="large" className="text-left w-full" weight="bold">
+          Didn’t receive your code?{' '}
+          <Button
+            onClick={() =>
+              handleSend({
+                username,
+              })
+            }
+            className="pl-0 text-secondary"
+            variant="link"
+          >
+            Resend
+          </Button>
+        </Text>
       </main>
     </>
   );

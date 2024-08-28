@@ -1,11 +1,10 @@
 import queryClient from '@vibepot/app/query-client.util';
 import { Button, Input, Text, Title } from '@vibepot/design-system';
-import { AuthError, autoSignIn, signUp } from 'aws-amplify/auth';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { AuthError, signUp } from 'aws-amplify/auth';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation } from 'react-query';
-import Header from '../common/components/header/header';
+import AuthHeader from '../common/components/auth/header';
 
 function SignUp() {
   const router = useRouter();
@@ -42,7 +41,7 @@ function SignUp() {
 
   return (
     <>
-      <Header pageName="Sign up" />
+      <AuthHeader pageName="Sign up" />
       <main className="px-20 py-40 overflow-hidden lg:max-w-screen-lg lg:my-0 lg:mx-auto flex gap-10 flex-col items-center">
         <form
           onSubmit={async (event) => {
