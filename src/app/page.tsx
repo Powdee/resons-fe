@@ -12,8 +12,6 @@ export default async function Home() {
   const user = await getUser();
   const events = await getEvents();
 
-  console.log('events', events);
-
   return (
     <>
       <Header user={user} />

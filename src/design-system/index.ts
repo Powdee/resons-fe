@@ -24,3 +24,6 @@ export { default as RightArrowIcon } from './icons/right-arrow';
 export { default as LeftArrowFilledIcon } from './icons/left-arrow-filled';
 export { default as MediaIcon } from './icons/media';
 export { default as GoogleIcon } from './icons/google';
+export { default as HeartIcon } from './icons/heart';
+export { default as ShareIcon } from './icons/share';
+export { default as DownloadIcon } from './icons/donwload';
