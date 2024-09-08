@@ -10,7 +10,7 @@ import {
   Title,
 } from '@vibepot/design-system';
 import Image from 'next/image';
-import { useState, useRef, MouseEvent, useEffect } from 'react';
+import { useState, useRef, MouseEvent, TouchEvent, useEffect } from 'react';
 
 export default function Media() {
   const [metadata, setMetadata] = useState<number>(0); // Video duration
@@ -18,6 +18,9 @@ export default function Media() {
   const [isDragging, setIsDragging] = useState<boolean>(false); // Track dragging state
   const timelineRef = useRef<HTMLDivElement | null>(null); // Reference to the timeline element
   const videoRef = useRef<HTMLVideoElement | null>(null); // Reference to the video element
+  const debounceTimeoutRef = useRef<number | null>(null); // Store the debounce timeout ID
+
+  const verticalThreshold = 300; // Set a threshold of 100px for the y-axis to prevent accidental stopping
 
   // Calculate the current position in percentage for the progress marker
   const currentPositionPercentage = metadata > 0 ? (time / metadata) * 100 : 0;
@@ -48,7 +51,7 @@ export default function Media() {
     }
   }, []);
 
-  // Function to handle setting the time based on click or drag
+  // Function to handle setting the time based on click or drag (works for both mouse and touch events)
   const updateTimeFromPosition = (clientX: number) => {
     if (!timelineRef.current || !videoRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect(); // Get the size of the timeline
@@ -57,11 +60,53 @@ export default function Media() {
     const newTime = percentage * metadata; // Convert percentage to time
     setTime(newTime); // Update state with the new time
     videoRef.current.currentTime = newTime; // Set the video time
+    videoRef.current.pause(); // Pause the video when dragging or clicking
   };
 
-  // Function to handle clicks on the timeline
+  // Debounced play function to start the video after dragging is complete
+  const debouncePlay = () => {
+    // Clear previous debounce timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    // Debounce by waiting 300ms before playing the video
+    debounceTimeoutRef.current = window.setTimeout(() => {
+      videoRef.current?.play();
+    }, 1000); // Delay before resuming playback
+  };
+
+  // Function to handle clicks on the timeline (mouse)
   const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
     updateTimeFromPosition(e.clientX);
+    debouncePlay(); // Resume video playback after click
+  };
+
+  // Function to handle dragging (mouse move) with a y-axis threshold
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (isDragging && timelineRef.current) {
+      const rect = timelineRef.current.getBoundingClientRect();
+      const withinYThreshold =
+        e.clientY >= rect.top - verticalThreshold && e.clientY <= rect.bottom + verticalThreshold;
+
+      if (withinYThreshold) {
+        updateTimeFromPosition(e.clientX); // Only update time if within the y-threshold
+      }
+    }
+  };
+
+  // Function to handle dragging (touch move) with a y-axis threshold for mobile
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    if (isDragging && timelineRef.current) {
+      const rect = timelineRef.current.getBoundingClientRect();
+      const touch = e.touches[0];
+      const withinYThreshold =
+        touch.clientY >= rect.top - verticalThreshold &&
+        touch.clientY <= rect.bottom + verticalThreshold;
+
+      if (withinYThreshold) {
+        updateTimeFromPosition(touch.clientX); // Only update time if within the y-threshold
+      }
+    }
   };
 
   // Function to handle starting the drag (mouse down)
@@ -70,34 +115,41 @@ export default function Media() {
     updateTimeFromPosition(e.clientX); // Set the time when drag starts
   };
 
-  // Function to handle dragging the progress marker (mouse move)
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (isDragging) {
-      updateTimeFromPosition(e.clientX); // Update the time during drag
-    }
+  // Function to handle starting the drag (touch start) for mobile
+  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    const touch = e.touches[0];
+    updateTimeFromPosition(touch.clientX); // Set the time when drag starts
   };
 
   // Function to handle stopping the drag (mouse up)
-  const handleMouseUp = () => {
+  const handleMouseUp = (e: MouseEvent<HTMLDivElement>) => {
     setIsDragging(false);
+    debouncePlay(); // Resume video playback after drag ends
+  };
+
+  // Function to handle stopping the drag (touch end) for mobile
+  const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
+    setIsDragging(false);
+    debouncePlay(); // Resume video playback after drag ends
   };
 
   return (
-    <div className="relative w-full h-screen bg-primary">
+    <div className="relative w-full h-[100svh] bg-primary">
       <video
         ref={videoRef} // Reference the video element
         className="absolute top-0 left-0 w-full h-full object-cover"
-        src="/example.mp4"
+        src="https://www.w3schools.com/html/mov_bbb.mp4"
         autoPlay
         loop
-        playsInline
         muted
         preload="metadata" // Ensure metadata is preloaded
+        playsInline // Prevents fullscreen on mobile devices
         onTimeUpdate={(e) => {
           if (!isDragging) setTime(e.currentTarget.currentTime); // Only update time if not dragging
         }}
       />
-      <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex flex-col justify-between z-10">
+      <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-between z-10">
         <div className="flex items-center justify-between p-4">
           <button className="p-2 bg-gray-800 bg-opacity-50 rounded-full absolute top-[10px]">
             <LeftArrowFilledIcon />
@@ -152,31 +204,24 @@ export default function Media() {
             <div className="flex flex-row w-full gap-2">
               <div
                 ref={timelineRef}
-                className={`bg-grey-900 w-full h-[20px] rounded-xs relative cursor-pointer`}
+                className="bg-grey-900 w-[500px] h-[20px] rounded-xs relative cursor-pointer"
                 onClick={handleTimelineClick} // Handle clicks on the timeline
-                onMouseMove={handleMouseMove} // Handle dragging (mouse move)
+                onMouseMove={handleMouseMove} // Handle dragging (mouse move) with y-threshold
                 onMouseUp={handleMouseUp} // Stop dragging when the mouse is released
                 onMouseLeave={handleMouseUp} // Stop dragging if the mouse leaves the timeline area
+                onTouchMove={handleTouchMove} // Handle touch dragging for mobile
+                onTouchStart={handleTouchStart} // Handle touch start for mobile
+                onTouchEnd={handleTouchEnd} // Stop dragging when the touch ends for mobile
               >
                 <div
-                  className="bg-white w-[5px] h-[20px] rounded-xs absolute cursor-pointer"
+                  className="bg-white w-[10px] h-[20px] rounded-xs absolute cursor-pointer"
                   style={{ left: `calc(${currentPositionPercentage}%)` }} // Adjust the position of the marker
                   onMouseDown={handleMouseDown} // Start dragging
                   onMouseUp={handleMouseUp} // Stop dragging
+                  onTouchStart={handleTouchStart} // Handle touch start for mobile
+                  onTouchEnd={handleTouchEnd} // Stop dragging when the touch ends
                 />
               </div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              {/* <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
-              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>  */}
             </div>
 
             <div className="flex flex-row justify-between">
