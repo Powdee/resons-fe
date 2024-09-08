@@ -10,35 +10,91 @@ import {
   Title,
 } from '@vibepot/design-system';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useRef, MouseEvent, useEffect } from 'react';
 
-export default function Media({}) {
-  const [metadata, setMetadata] = useState(0);
-  const [time, currentTime] = useState(0);
+export default function Media() {
+  const [metadata, setMetadata] = useState<number>(0); // Video duration
+  const [time, setTime] = useState<number>(0); // Current time
+  const [isDragging, setIsDragging] = useState<boolean>(false); // Track dragging state
+  const timelineRef = useRef<HTMLDivElement | null>(null); // Reference to the timeline element
+  const videoRef = useRef<HTMLVideoElement | null>(null); // Reference to the video element
 
-  // Helper function to format the time in HH:MM:SS
-  const formatTime = (time: number) => {
-    const hours = Math.floor(time / 3600);
-    const minutes = Math.floor((time % 3600) / 60);
-    const seconds = Math.floor(time % 60);
-    return `${hours > 0 ? `${hours}:` : ''}${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+  // Calculate the current position in percentage for the progress marker
+  const currentPositionPercentage = metadata > 0 ? (time / metadata) * 100 : 0;
+
+  // Handle video metadata loading
+  const handleLoadedMetadata = (e: Event) => {
+    const videoElement = e.target as HTMLVideoElement;
+    if (videoElement.duration > 0) {
+      setMetadata(videoElement.duration); // Set the video duration when it's available
+    }
   };
-  // Calculate timeline segments
-  const currentPositionPercentage = time;
+
+  // Ensure the video metadata is loaded after refresh
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      // Attach the event listener
+      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      // If the metadata is already available (in case of a fast load)
+      if (video.duration > 0) {
+        setMetadata(video.duration);
+      }
+
+      // Clean up the event listener on unmount
+      return () => {
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      };
+    }
+  }, []);
+
+  // Function to handle setting the time based on click or drag
+  const updateTimeFromPosition = (clientX: number) => {
+    if (!timelineRef.current || !videoRef.current) return;
+    const rect = timelineRef.current.getBoundingClientRect(); // Get the size of the timeline
+    const position = clientX - rect.left; // Get the horizontal position
+    const percentage = Math.max(0, Math.min(position / rect.width, 1)); // Keep percentage between 0 and 1
+    const newTime = percentage * metadata; // Convert percentage to time
+    setTime(newTime); // Update state with the new time
+    videoRef.current.currentTime = newTime; // Set the video time
+  };
+
+  // Function to handle clicks on the timeline
+  const handleTimelineClick = (e: MouseEvent<HTMLDivElement>) => {
+    updateTimeFromPosition(e.clientX);
+  };
+
+  // Function to handle starting the drag (mouse down)
+  const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    updateTimeFromPosition(e.clientX); // Set the time when drag starts
+  };
+
+  // Function to handle dragging the progress marker (mouse move)
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (isDragging) {
+      updateTimeFromPosition(e.clientX); // Update the time during drag
+    }
+  };
+
+  // Function to handle stopping the drag (mouse up)
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
   return (
     <div className="relative w-full h-screen bg-primary">
       <video
+        ref={videoRef} // Reference the video element
         className="absolute top-0 left-0 w-full h-full object-cover"
         src="/example.mp4"
         autoPlay
         loop
+        playsInline
         muted
+        preload="metadata" // Ensure metadata is preloaded
         onTimeUpdate={(e) => {
-          currentTime(e.currentTarget.currentTime);
-        }}
-        onLoadedMetadata={(e) => {
-          setMetadata(e.currentTarget.duration);
+          if (!isDragging) setTime(e.currentTarget.currentTime); // Only update time if not dragging
         }}
       />
       <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex flex-col justify-between z-10">
@@ -95,31 +151,40 @@ export default function Media({}) {
           <div className="p-20 pt-8 flex flex-col w-full gap-12">
             <div className="flex flex-row w-full gap-2">
               <div
-                className=" bg-grey-900 w-[500px] h-[20px] rounded-xs relative"
-                data-index="video-timeline"
+                ref={timelineRef}
+                className={`bg-grey-900 w-full h-[20px] rounded-xs relative cursor-pointer`}
+                onClick={handleTimelineClick} // Handle clicks on the timeline
+                onMouseMove={handleMouseMove} // Handle dragging (mouse move)
+                onMouseUp={handleMouseUp} // Stop dragging when the mouse is released
+                onMouseLeave={handleMouseUp} // Stop dragging if the mouse leaves the timeline area
               >
                 <div
-                  className="bg-white w-[10px] h-[20px] rounded-xs absolute"
-                  data-index="current-time-index"
+                  className="bg-white w-[5px] h-[20px] rounded-xs absolute cursor-pointer"
                   style={{ left: `calc(${currentPositionPercentage}%)` }} // Adjust the position of the marker
+                  onMouseDown={handleMouseDown} // Start dragging
+                  onMouseUp={handleMouseUp} // Stop dragging
                 />
               </div>
               <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
+              {/* <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
               <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
               <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
               <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
               <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
+              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
+              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
+              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
+              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
+              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>
+              <div className="border-grey-900 w-full h-[20px] border-2 rounded-xs"></div>  */}
             </div>
 
             <div className="flex flex-row justify-between">
               <Text variant="small" className="text-grey-200" weight="bold">
-                8.20PM
+                {new Date(time * 1000).toISOString().substr(11, 8)} {/* Current time */}
               </Text>
               <Text variant="small" weight="bold">
-                9.59:29 PM
-              </Text>
-              <Text variant="small" className="text-grey-200" weight="bold">
-                9.59 PM
+                {new Date(metadata * 1000).toISOString().substr(11, 8)} {/* Video duration */}
               </Text>
             </div>
           </div>
