@@ -245,13 +245,14 @@ export default function Media() {
                 >
                   {/* Frame Thumbnail */}
                   {isDragging && thumbnailSrc && (
-                    <div className="w-[96px] h-[148px] rounded-m border-2 bottom-0 border-grey-900 absolute -translate-y-[160px]">
+                    <div className="w-[96px] h-[148px] rounded-m border-2 bottom-0 border-grey-900 absolute -translate-y-[60px] -translate-x-[48px]">
                       <Image
                         objectFit="contain"
                         width={96}
                         height={148}
                         src={thumbnailSrc}
                         alt="video thumbnail"
+                        className="rounded-m"
                       />
                     </div>
                   )}
