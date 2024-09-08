@@ -35,7 +35,18 @@
   }
 }
 
-.vintage-bottom-effect::before {
+.vintage-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 1), transparent);
+  z-index: 1;
+}
+
+.vintage-effect::after {
   content: '';
   position: absolute;
   bottom: 0;

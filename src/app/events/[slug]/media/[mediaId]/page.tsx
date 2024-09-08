@@ -16,11 +16,13 @@ export default function Media() {
   const [metadata, setMetadata] = useState<number>(0); // Video duration
   const [time, setTime] = useState<number>(0); // Current time
   const [isDragging, setIsDragging] = useState<boolean>(false); // Track dragging state
+  const [thumbnailSrc, setThumbnailSrc] = useState<string>(''); // Store thumbnail image source
   const timelineRef = useRef<HTMLDivElement | null>(null); // Reference to the timeline element
   const videoRef = useRef<HTMLVideoElement | null>(null); // Reference to the video element
+  const canvasRef = useRef<HTMLCanvasElement | null>(null); // Reference to a canvas to capture the video frame
   const debounceTimeoutRef = useRef<number | null>(null); // Store the debounce timeout ID
 
-  const verticalThreshold = 300; // Set a threshold of 100px for the y-axis to prevent accidental stopping
+  const verticalThreshold = 100; // Set a threshold of 100px for the y-axis to prevent accidental stopping
 
   // Calculate the current position in percentage for the progress marker
   const currentPositionPercentage = metadata > 0 ? (time / metadata) * 100 : 0;
@@ -61,6 +63,22 @@ export default function Media() {
     setTime(newTime); // Update state with the new time
     videoRef.current.currentTime = newTime; // Set the video time
     videoRef.current.pause(); // Pause the video when dragging or clicking
+    captureThumbnail(newTime); // Capture the frame thumbnail
+  };
+
+  // Capture the video frame as a thumbnail using the canvas
+  const captureThumbnail = (time: number) => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (video && canvas) {
+      video.currentTime = time;
+      const ctx = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const thumbnail = canvas.toDataURL('image/png');
+      setThumbnailSrc(thumbnail); // Set the captured thumbnail
+    }
   };
 
   // Debounced play function to start the video after dragging is complete
@@ -72,7 +90,7 @@ export default function Media() {
     // Debounce by waiting 300ms before playing the video
     debounceTimeoutRef.current = window.setTimeout(() => {
       videoRef.current?.play();
-    }, 1000); // Delay before resuming playback
+    }, 300); // Delay before resuming playback
   };
 
   // Function to handle clicks on the timeline (mouse)
@@ -139,7 +157,7 @@ export default function Media() {
       <video
         ref={videoRef} // Reference the video element
         className="absolute top-0 left-0 w-full h-full object-cover"
-        src="https://www.w3schools.com/html/mov_bbb.mp4"
+        src="/example1.mp4"
         autoPlay
         loop
         muted
@@ -149,6 +167,9 @@ export default function Media() {
           if (!isDragging) setTime(e.currentTarget.currentTime); // Only update time if not dragging
         }}
       />
+      {/* Canvas for capturing video frame thumbnails */}
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+
       <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-between z-10">
         <div className="flex items-center justify-between p-4">
           <button className="p-2 bg-gray-800 bg-opacity-50 rounded-full absolute top-[10px]">
@@ -213,6 +234,7 @@ export default function Media() {
                 onTouchStart={handleTouchStart} // Handle touch start for mobile
                 onTouchEnd={handleTouchEnd} // Stop dragging when the touch ends for mobile
               >
+                {/* Marker with Thumbnail */}
                 <div
                   className="bg-white w-[10px] h-[20px] rounded-xs absolute cursor-pointer"
                   style={{ left: `calc(${currentPositionPercentage}%)` }} // Adjust the position of the marker
@@ -220,7 +242,20 @@ export default function Media() {
                   onMouseUp={handleMouseUp} // Stop dragging
                   onTouchStart={handleTouchStart} // Handle touch start for mobile
                   onTouchEnd={handleTouchEnd} // Stop dragging when the touch ends
-                />
+                >
+                  {/* Frame Thumbnail */}
+                  {isDragging && thumbnailSrc && (
+                    <div className="w-[96px] h-[148px] rounded-m border-2 bottom-0 border-grey-900 absolute -translate-y-[160px]">
+                      <Image
+                        objectFit="contain"
+                        width={96}
+                        height={148}
+                        src={thumbnailSrc}
+                        alt="video thumbnail"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -235,7 +270,7 @@ export default function Media() {
           </div>
         </div>
       </div>
-      <div className="vintage-bottom-effect" />
+      <div className="vintage-effect" />
     </div>
   );
 }
